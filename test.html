@@ -7,10 +7,23 @@
     <meta content="Pagina con i blocchi e i giri" name="description" />
 
     <script type="module" src="./index.js"></script>
+    <script src="https://unpkg.com/konva@3.1.0/konva.js"></script>
   </head>
 
   <body>
     <h1>CIAO</h1>
+    <div id="canvasDiv" style="width: 1024px; heigh: 1024px; background-image: url('./test.png'); background-size: contain"></div>
+  <script type="module">
+    import HoldsPinner from "./index.js";
+    const holds_pinner = new HoldsPinner('canvasDiv', 1024, 1024);
+    holds_pinner.set_editable();
+    //const startingHolds = {};<%= raw (@game.pinnings ? @game.pinnings.to_json : []) %>;
+    //holds_pinner.setup(startingHolds);
+    // wait for bootstrap resize 
+    //window.addEventListener('load', function () {
+    //  holds_pinner.fitStageIntoParentContainer();
+    //}, false);
+  </script>
   </body>
 </html>
 
