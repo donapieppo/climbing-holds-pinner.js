@@ -2,28 +2,28 @@ const colors = {
   start: 'rgba(219, 10, 91, 0.8)',
   top: 'rgba(123, 1, 123, 0.8)',
   hold: 'rgba(245, 229, 27, 0.8)',
-  blurr_background: 'rgba(200, 200, 200, 0.30)',
-};
+  blurr_background: 'rgba(200, 200, 200, 0.30)'
+}
 
 class HoldLabel {
-  constructor(x, y, type, editable) {
-    this.x = x;
-    this.y = y;
-    this.type = type;
+  constructor (x, y, type, editable) {
+    this.x = x
+    this.y = y
+    this.type = type
 
     this.label = new Konva.Label({
       x: this.x - 150,
       y: this.y - 15,
       opacity: 0.85,
-      draggable: editable,
-    });
+      draggable: editable
+    })
 
     this.label.add(
       new Konva.Tag({
         fill: 'rgba(123, 1, 123, 1)',
-        cornerRadius: 5,
-      }),
-    );
+        cornerRadius: 5
+      })
+    )
 
     this.label.add(
       new Konva.Text({
@@ -32,35 +32,35 @@ class HoldLabel {
         fontSize: 38,
         padding: 15,
         fill: 'white',
-        align: 'right',
-      }),
+        align: 'right'
+      })
     );
 
     this.label.on('dragend', () => {
       if (this.label.x() < 10) {
-        this.x = 0;
-        this.y = 0;
+        this.x = 0
+        this.y = 0
       } else {
-        this.x = this.label.x();
-        this.y = this.label.y();
+        this.x = this.label.x()
+        this.y = this.label.y()
       }
-    });
+    })
   }
 
   move(x, y) {
-    this.x = x;
-    this.y = y;
-    this.label.x(this.x - 120);
-    this.label.y(this.y - 15);
-    this.label.draw();
+    this.x = x
+    this.y = y
+    this.label.x(this.x - 120)
+    this.label.y(this.y - 15)
+    this.label.draw()
   }
 }
 
 class Hold {
   constructor(x, y, type, size, editable) {
-    this.x = x;
-    this.y = y;
-    this.type = type;
+    this.x = x
+    this.y = y
+    this.type = type
 
     const common = {
       x: this.x,
@@ -68,36 +68,36 @@ class Hold {
       strokeWidth: 8,
       stroke: this.color(),
       draggable: editable,
-      fill: colors.blurr_background,
-    };
+      fill: colors.blurr_background
+    }
 
     if (type === 'start') {
       this.pin = new Konva.Star({
         ...common, ...{ numPoints: 4, innerRadius: size, outerRadius: size - 10 },
-      });
+      })
     } else if (type === 'hold') {
       this.pin = new Konva.Circle({
         ...common, ...{ radius: size },
-      });
+      })
     } else if (type === 'top') {
       this.pin = new Konva.Star({
         ...common, ...{ numPoints: 5, innerRadius: size, outerRadius: size - 10  },
-      });
+      })
     }
 
     this.pin.on('dragend', () => {
       if (this.pin.x() < 10) {
-        this.x = 0;
-        this.y = 0;
+        this.x = 0
+        this.y = 0
       } else {
-        this.x = this.pin.x();
-        this.y = this.pin.y();
+        this.x = this.pin.x()
+        this.y = this.pin.y()
       }
-    });
+    })
   }
 
   color() {
-    return colors[this.type];
+    return colors[this.type]
   }
 }
 
