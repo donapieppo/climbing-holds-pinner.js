@@ -1,0 +1,12 @@
+{
+  "name": "climbing-holds-pinner.js",
+  "version": "0.0.1",
+  "description": "Pinning climbing holds on canvas",
+  "main": "index.js",
+  "author": "Donapieppo <donapieppo@yahoo.it>",
+  "license": "MIT", 
+  "homepage": "https://github.com/donapieppo/climbing-holds-pinner.js", 
+  "dependencies": {
+    "konva": "^3.2.6"
+  }
+}
