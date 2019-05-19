@@ -1,8 +1,15 @@
-const colors = {
+const  colors = { 
   start: 'rgba(219, 10, 91, 0.8)',
   top: 'rgba(123, 1, 123, 0.8)',
   hold: 'rgba(245, 229, 27, 0.8)',
-  blurr_background: 'rgba(200, 200, 200, 0.30)'
+  blurr_background: 'rgba(200, 200, 200, 0.30)' 
+} 
+const defaults = {
+  width: 1024,
+  height: 1024,
+  target: 'CanvasDiv', 
+  editable: false, 
+  size_ratio: 50, // (this.width + this.height) / this.size_ratio
 }
 
 class HoldLabel {
@@ -102,28 +109,29 @@ class Hold {
 }
 
 export default class HoldsPinner {
-  constructor(target, width, height) {
-    this.target = target;
-    this.width = width;
-    this.height = height;
-    this.hold_size = (width + height) / 50  
-    this.actual_hold_type = 'start';
-    this.editable = false;
+  constructor(options) {
+    let o = Object.assign({}, defaults, options)
+    this.target = o.target
+    this.width  = o.width
+    this.height = o.height
+    this.editable = o.editable
+    this.size_ratio = o.size_ratio
 
-    this.result = [];
+    this.hold_size = (this.width + this.height) / this.size_ratio  
+    this.actual_hold_type = 'start'
 
-    this.valid = false;
-    this.dragging = false;
+    this.result = []
+
+    this.valid = false
 
     this.stage = new Konva.Stage({
-      container: target,
+      container: this.target,
       width: this.width,
-      height: this.height,
-    });
+      height: this.height
+    })
 
-    this.layer = new Konva.Layer();
-    this.stage.add(this.layer);
-
+    this.layer = new Konva.Layer()
+    this.stage.add(this.layer)
   }
 
   setup(holdsData) {
