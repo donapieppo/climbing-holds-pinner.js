@@ -9,30 +9,30 @@ const defaults = {
   height: 1024,
   target: 'CanvasDiv', 
   editable: false, 
-  size_ratio: 50, // (this.width + this.height) / this.size_ratio
+  size_ratio: 70, // (this.width + this.height) / this.size_ratio
 }
 
 class HoldLabel {
-  constructor (x, y, type, editable) {
+  constructor (x, y, type, size, editable) {
     this.x = x
     this.y = y
     this.type = type
 
-    this.label = new Konva.Label({
+    this.shape = new Konva.Label({
       x: this.x - 150,
       y: this.y - 15,
       opacity: 0.85,
       draggable: editable
     })
 
-    this.label.add(
+    this.shape.add(
       new Konva.Tag({
         fill: 'rgba(123, 1, 123, 1)',
         cornerRadius: 5
       })
     )
 
-    this.label.add(
+    this.shape.add(
       new Konva.Text({
         text: this.type,
         fontFamily: 'Calibri',
@@ -41,25 +41,17 @@ class HoldLabel {
         fill: 'white',
         align: 'right'
       })
-    );
+    )
 
-    this.label.on('dragend', () => {
-      if (this.label.x() < 10) {
+    this.shape.on('dragend', () => {
+      if (this.shape.x() < 10) {
         this.x = 0
         this.y = 0
       } else {
-        this.x = this.label.x()
-        this.y = this.label.y()
+        this.x = this.shape.x()
+        this.y = this.shape.y()
       }
     })
-  }
-
-  move(x, y) {
-    this.x = x
-    this.y = y
-    this.label.x(this.x - 120)
-    this.label.y(this.y - 15)
-    this.label.draw()
   }
 }
 
@@ -72,33 +64,33 @@ class Hold {
     const common = {
       x: this.x,
       y: this.y,
-      strokeWidth: 8,
+      strokeWidth: size / 5,
       stroke: this.color(),
       draggable: editable,
       fill: colors.blurr_background
     }
 
     if (type === 'start') {
-      this.pin = new Konva.Star({
-        ...common, ...{ numPoints: 4, innerRadius: size, outerRadius: size - 10 },
+      this.shape = new Konva.Star({
+        ...common, ...{ numPoints: 3, innerRadius: size - size/2, outerRadius: size },
       })
     } else if (type === 'hold') {
-      this.pin = new Konva.Circle({
+      this.shape = new Konva.Circle({
         ...common, ...{ radius: size },
       })
     } else if (type === 'top') {
-      this.pin = new Konva.Star({
-        ...common, ...{ numPoints: 5, innerRadius: size, outerRadius: size - 10  },
+      this.shape = new Konva.Star({
+        ...common, ...{ numPoints: 5, innerRadius: size - size/2, outerRadius: size },
       })
     }
 
-    this.pin.on('dragend', () => {
-      if (this.pin.x() < 10) {
+    this.shape.on('dragend', () => {
+      if (this.shape.x() < 10) {
         this.x = 0
         this.y = 0
       } else {
-        this.x = this.pin.x()
-        this.y = this.pin.y()
+        this.x = this.shape.x()
+        this.y = this.shape.y()
       }
     })
   }
@@ -117,10 +109,9 @@ export default class HoldsPinner {
     this.editable = o.editable
     this.size_ratio = o.size_ratio
 
-    this.hold_size = (this.width + this.height) / this.size_ratio  
     this.actual_hold_type = 'start'
 
-    this.result = []
+    this.pins = []
 
     this.valid = false
 
@@ -132,88 +123,122 @@ export default class HoldsPinner {
 
     this.layer = new Konva.Layer()
     this.stage.add(this.layer)
+
+    this.stage.on('click', (e) => {
+      this.add_hold_event(e)
+    })
   }
 
   setup(holdsData) {
     holdsData.forEach(hold => {
       if (hold.c === 'Hold') {
-        this.add_hold(hold.x, hold.y, hold.type);
+        this.add_hold(hold.x, hold.y, hold.type)
       }
-    });
+    })
   }
 
-  set_editable() {
-    this.editable = true;
-    this.stage.on('click', (e) => {
-      this.add_hold_event(e);
-    });
-  };
+  hold_size() {
+    return ((this.width + this.height) / this.size_ratio)
+  }
 
   add_hold_event(e) {
-    console.log(e);
-    console.log(`adding hold from event e.x, e.y:${e.evt.layerX}:${e.evt.layerY}`);
+    console.log(e)
+    console.log(`adding hold from event e.x, e.y:${e.evt.layerX}:${e.evt.layerY}`)
 
-    const x = e.evt.layerX;
-    const y = e.evt.layerY;
+    const x = e.evt.layerX
+    const y = e.evt.layerY
 
-    const hold = this.add_hold(x, y, this.actual_hold_type);
+    const hold = this.add_hold(x, y, this.actual_hold_type)
 
-    this.actual_hold = hold;
-    console.log(this.result);
+    console.log(this.pins)
   }
 
   add_hold(x, y, hold_type) {
-    const hold = new Hold(x, y, hold_type, this.hold_size, this.editable);
-    console.log(`new hold: hold.x=${hold.x} hold.y=${hold.y} hold.type=${hold.type}`);
-    this.layer.add(hold.pin).draw();
-    this.result.push(hold);
+    const hold = new Hold(x, y, hold_type, this.hold_size(), this.editable)
+    console.log(`new hold: hold.x=${hold.x} hold.y=${hold.y} hold.type=${hold.type}`)
+    this.pins.push(hold)
+
+    this.layer.add(hold.shape).draw()
 
     if (hold.type === 'top') {
-      const hold_label = new HoldLabel(x, y, hold_type, this.editable);
-      this.layer.add(hold_label.label).draw();
-      this.result.push(hold_label);
-      // FIXME: pull out of here this code, probably use a label inside Hold is a better choice.
-      hold.pin.on('dragmove', () => {
-        hold_label.move(hold.pin.x(), hold.pin.y());
-      });
+      const hold_label = new HoldLabel(x, y, hold_type, this.hold_size(), this.editable)
+      this.pins.push(hold_label)
+
+      this.layer.add(hold_label.shape).draw()
     }
-    return hold;
+    return hold
+  }
+
+  get_hold_type() {
+    return this.actual_hold_type
   }
 
   change_hold_type(th) {
-    this.actual_hold_type = th;
+    this.actual_hold_type = th
+  }
+
+  increase_size() {
+    this.size_ratio = this.size_ratio * 0.75
+    console.log(`size_ratio: ${this.size_ratio}`)
+    this.pins.forEach( r => { r.shape.scale({
+        x: 0.75,
+        y: 0.75
+    })})
+    this.layer.draw()
+  }
+
+  decrease_size() {
+    this.size_ratio = this.size_ratio * 1.25
+    console.log(`size_ratio: ${this.size_ratio}`)
+    // this.pins.forEach( r => r.shape.scale({
+    //     x: 1.25,
+    //     y: 1.25
+    // }))
+    // this.layer.draw()
   }
 
   get_holds() {
-    console.log(this.result);
-    return this.result.filter(h => h.x !== 0).map(h => ({
-      c: h.constructor.name, x: h.x, y: h.y, type: h.type,
-    }));
+    console.log(this.pins)
+    return this.pins.filter(h => h.x !== 0).map(h => ({
+      c: h.constructor.name, x: h.x, y: h.y, type: h.type, size_ratio: h.size_ratio
+    }))
   }
   
   // see
   // https://konvajs.org/docs/data_and_serialization/Stage_Data_URL.html
   // for saving as image
   export_image() {
-    var dataURL = this.stage.toDataURL();
-    return dataURL;
+    var dataURL = this.stage.toDataURL()
+    return dataURL
   }
 
   // thanks to https://konvajs.org/docs/sandbox/Responsive_Canvas.html
   fitStageIntoParentContainer() {
-    var container = document.querySelector(`#${this.target}`);
+    var container = document.querySelector(`#${this.target}`)
 
-    var containerWidth = container.offsetWidth;
-    var scale = containerWidth / this.width;
-    console.log(`containerWidth: ${containerWidth}, this.width: ${this.width}, scale: ${scale}`);
-    console.log(container);
-    console.log(container.clientWidth);
+    var containerWidth = container.offsetWidth
+    var scale = containerWidth / this.width
+    console.log(`containerWidth: ${containerWidth}, this.width: ${this.width}, scale: ${scale}`)
+    console.log(container)
+    console.log(container.clientWidth)
 
-    this.stage.width(this.width * scale);
-    this.stage.height(this.height * scale);
-    this.stage.scale({ x: scale, y: scale });
+    this.stage.width(this.width * scale)
+    this.stage.height(this.height * scale)
+    this.stage.scale({ x: scale, y: scale })
 
-    this.stage.draw();
+    this.stage.draw()
+  }
+
+  undo() {
+    console.log("UNDO")
+    var last = this.pins.pop()
+    last.shape.hide()
+    // hide also the label
+    if (last.type === 'top') {
+      last = this.pins.pop()
+      last.shape.hide()
+    }
+    this.layer.draw()
   }
 }
 
