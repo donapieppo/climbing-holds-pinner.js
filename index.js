@@ -180,11 +180,11 @@ export default class HoldsPinner {
   increase_size() {
     this.size_ratio = this.size_ratio * 0.75
     console.log(`size_ratio: ${this.size_ratio}`)
-    this.pins.forEach( r => { r.shape.scale({
-        x: 0.75,
-        y: 0.75
-    })})
-    this.layer.draw()
+    // this.pins.forEach( r => { r.shape.scale({
+    //     x: 0.75,
+    //     y: 0.75
+    // })})
+    // this.layer.draw()
   }
 
   decrease_size() {
