@@ -7,87 +7,94 @@
     <title>I blocchi e i giri di Eden</title>
     <meta content="Pagina con i blocchi e i giri" name="description" />
     
-    <script type="module" src="./index.js"></script>
     <script src="https://unpkg.com/konva@3.1.0/konva.js"></script>
+    <script type="module" src="./index.js"></script>
 
     <style>
-      .action_button {
-        width: 100px;
-        padding: 5px;
-        margin: 3px;
-      }
-      .selected {
-        background-color: green;
-      }
+.pinning-action-button {
+  width: 70px;
+  padding: 5px 3px;
+  margin: 3px;
+  display: block;
+}
+.pinning-selected-button {
+  background-color: green;
+}
     </style>
   </head>
 
   <body>
     <h1>CIAO</h1>
-    <div style="position: fixed; top: 10px; left: 0; z-index: 1000; background-color: rgba(120,120,120,0.2)">
-      <button id="start_hold_btn" class="selected action_button">Start</button> <br/>
-      <button id="top_hold_btn" class="action_button">Top</button> <br/>
-      <button id="increase_hold_size_btn" class="action_button">+</button> <br/>
-      <button id="decrease_hold_size_btn" class="action_button">-</button> <br/>
-      <button id="undo_btn" class="action_button">UNDO</button>
+    <div style="position: fixed !important; top: 10px; left: 0; z-index: 1000;">
+      <button id="start_hold_btn"         class="pinning-selected-button pinning-action-button">Start</button> 
+      <button id="top_hold_btn"           class="pinning-action-button">Top</button> 
+      <button id="increase_hold_size_btn" class="pinning-action-button mt-2"><i class="fas fa-plus"></i></button> 
+      <button id="decrease_hold_size_btn" class="pinning-action-button"><i class="fas fa-minus"></i></button> 
+      <button id="undo_btn"               class="pinning-action-button"><i class="fas fa-undo"></i></button>
+      <button id="save"                   class="pinning-action-button mt-2">Salva</button>
     </div>
-    <div id="canvasDiv" style="width: 1024px; heigh: 1024px; background-image: url('./test.png'); background-size: contain"></div>
-    <script type="module">
-      import HoldsPinner from "./index.js";
-      const holds_pinner = new HoldsPinner({target: 'canvasDiv', width: 1024, height: 1024, editable: true});
-      console.log(holds_pinner);
+    <div id="canvasDiv" style="margin: 60px auto; width: 1024px; height: 1024px; background-image: url('test.png')"></div>
 
-      document.querySelector('#start_hold_btn').addEventListener('click', toggle_start_hold)
-      document.querySelector('#top_hold_btn').addEventListener('click', toggle_top_hold)
-      document.querySelector('#increase_hold_size_btn').addEventListener('click', increase_hold_size)
-      document.querySelector('#decrease_hold_size_btn').addEventListener('click', decrease_hold_size)
-      document.querySelector('#undo_btn').addEventListener('click', undo)
+<script type="module">
+   import HoldsPinner from "./index.js";
+   const holds_pinner = new HoldsPinner({target: 'canvasDiv', width: 1024, height: 1024, editable: true});
+   const startingHolds = []
+   console.log('startingHolds')
+   console.log(startingHolds)
 
-      function clear_selected() {
-        document.querySelector('#start_hold_btn').classList.remove("selected");
-          document.querySelector('#top_hold_btn').classList.remove("selected");
-      }
+   holds_pinner.setup(startingHolds);
 
-      function toggle_start_hold() {
-        clear_selected()
-        if (holds_pinner.get_hold_type() === 'start') {
-          holds_pinner.change_hold_type('hold')
-        } else {
-          document.querySelector('#start_hold_btn').classList.add("selected");
-          holds_pinner.change_hold_type('start')
-        }
-      }
+   document.querySelector('#start_hold_btn').addEventListener('click', toggle_start_hold)
+   document.querySelector('#top_hold_btn').addEventListener('click', toggle_top_hold)
+   document.querySelector('#increase_hold_size_btn').addEventListener('click', increase_hold_size)
+   document.querySelector('#decrease_hold_size_btn').addEventListener('click', decrease_hold_size)
+   document.querySelector('#undo_btn').addEventListener('click', undo)
+   document.querySelector('#save').addEventListener('click', save_holds)
 
-      function toggle_top_hold() {
-        clear_selected()
-        if (holds_pinner.get_hold_type() === 'top') {
-          holds_pinner.change_hold_type('hold')
-        } else {
-          document.querySelector('#top_hold_btn').classList.add("selected");
-          holds_pinner.change_hold_type('top')
-        }
-      }
+   function clear_selected() {
+     document.querySelector('#start_hold_btn').classList.remove("pinning-selected-button");
+     document.querySelector('#top_hold_btn').classList.remove("pinning-selected-button");
+   }
 
-      function increase_hold_size() {
-        holds_pinner.increase_size();
-      }
+   function toggle_start_hold() {
+     clear_selected()
+     if (holds_pinner.get_hold_type() === 'start') {
+       holds_pinner.change_hold_type('hold')
+     } else {
+       document.querySelector('#start_hold_btn').classList.add("pinning-selected-button");
+       holds_pinner.change_hold_type('start')
+     }
+   }
 
-      function decrease_hold_size() {
-        holds_pinner.decrease_size();
-      }
+   function toggle_top_hold() {
+     clear_selected()
+     if (holds_pinner.get_hold_type() === 'top') {
+       holds_pinner.change_hold_type('hold')
+     } else {
+       document.querySelector('#top_hold_btn').classList.add("pinning-selected-button");
+       holds_pinner.change_hold_type('top')
+     }
+   }
 
-      function undo() {
-        holds_pinner.undo();
-      }
+    function increase_hold_size() {
+      holds_pinner.increase_size();
+    }
 
+    function decrease_hold_size() {
+      holds_pinner.decrease_size();
+    }
 
-      //const startingHolds = {};<%= raw (@game.pinnings ? @game.pinnings.to_json : []) %>;
-      //holds_pinner.setup(startingHolds);
-      // wait for bootstrap resize 
-      //window.addEventListener('load', function () {
-      //  holds_pinner.fitStageIntoParentContainer();
-      //}, false);
-    </script>
+    function undo() {
+      holds_pinner.undo();
+    }
+
+   function save_holds() {
+     var result = {};
+     result['holds'] = holds_pinner.get_holds();
+     result['image'] = holds_pinner.export_image();
+     alert(JSON.stringify(result));
+   }
+</script>
   </body>
 </html>
 
