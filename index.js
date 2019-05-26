@@ -17,6 +17,7 @@ class HoldLabel {
     this.x = x
     this.y = y
     this.type = type
+    this.size = size
 
     this.shape = new Konva.Label({
       x: this.x - 150,
@@ -60,6 +61,7 @@ class Hold {
     this.x = x
     this.y = y
     this.type = type
+    this.size = size
 
     const common = {
       x: this.x,
@@ -132,7 +134,7 @@ export default class HoldsPinner {
   setup(holdsData) {
     holdsData.forEach(hold => {
       if (hold.c === 'Hold') {
-        this.add_hold(hold.x, hold.y, hold.type)
+        this.add_hold(hold.x, hold.y, hold.type, hold.size)
       }
     })
   }
@@ -148,20 +150,20 @@ export default class HoldsPinner {
     const x = e.evt.layerX
     const y = e.evt.layerY
 
-    const hold = this.add_hold(x, y, this.actual_hold_type)
+    const hold = this.add_hold(x, y, this.actual_hold_type, this.hold_size())
 
     console.log(this.pins)
   }
 
-  add_hold(x, y, hold_type) {
-    const hold = new Hold(x, y, hold_type, this.hold_size(), this.editable)
-    console.log(`new hold: hold.x=${hold.x} hold.y=${hold.y} hold.type=${hold.type}`)
+  add_hold(x, y, hold_type, size) {
+    const hold = new Hold(x, y, hold_type, size, this.editable)
+    console.log(`new hold: hold.x=${hold.x} hold.y=${hold.y} hold.type=${hold.type} size=${hold.size}`)
     this.pins.push(hold)
 
     this.layer.add(hold.shape).draw()
 
     if (hold.type === 'top') {
-      const hold_label = new HoldLabel(x, y, hold_type, this.hold_size(), this.editable)
+      const hold_label = new HoldLabel(x, y, hold_type, size, this.editable)
       this.pins.push(hold_label)
 
       this.layer.add(hold_label.shape).draw()
@@ -198,9 +200,14 @@ export default class HoldsPinner {
   }
 
   get_holds() {
+    console.log('in get_holds()')
     console.log(this.pins)
     return this.pins.filter(h => h.x !== 0).map(h => ({
-      c: h.constructor.name, x: h.x, y: h.y, type: h.type, size_ratio: h.size_ratio
+      c: h.constructor.name, 
+      x: h.x, 
+      y: h.y, 
+      type: h.type, 
+      size: h.size
     }))
   }
   
@@ -241,5 +248,8 @@ export default class HoldsPinner {
     this.layer.draw()
   }
 }
+
+
+
 
 
