@@ -28,21 +28,21 @@
     <div style="position: fixed !important; top: 10px; left: 0; z-index: 1000;">
       <button id="start_hold_btn"         class="pinning-selected-button pinning-action-button">Start</button> 
       <button id="top_hold_btn"           class="pinning-action-button">Top</button> 
-      <button id="increase_hold_size_btn" class="pinning-action-button mt-2"><i class="fas fa-plus"></i></button> 
-      <button id="decrease_hold_size_btn" class="pinning-action-button"><i class="fas fa-minus"></i></button> 
-      <button id="undo_btn"               class="pinning-action-button"><i class="fas fa-undo"></i></button>
+      <button id="increase_hold_size_btn" class="pinning-action-button mt-2"><i class="fas fa-plus"></i>+</button> 
+      <button id="decrease_hold_size_btn" class="pinning-action-button"><i class="fas fa-minus"></i>-</button> 
+      <button id="undo_btn"               class="pinning-action-button"><i class="fas fa-undo"></i>undo</button>
       <button id="save"                   class="pinning-action-button mt-2">Salva</button>
     </div>
     <div id="canvasDiv" style="margin: 60px auto; width: 1024px; height: 1024px; background-image: url('test.png')"></div>
 
 <script type="module">
    import HoldsPinner from "./index.js";
-   const holds_pinner = new HoldsPinner({target: 'canvasDiv', width: 1024, height: 1024, editable: true});
+   const holds_pinner = new HoldsPinner({editable: true, size_ratio: 50});
    const startingHolds = []
    console.log('startingHolds')
    console.log(startingHolds)
 
-   holds_pinner.setup(startingHolds);
+   holds_pinner.setup([{"c":"Hold","x":200,"y":100,"type":"start","size":40}]);
 
    document.querySelector('#start_hold_btn').addEventListener('click', toggle_start_hold)
    document.querySelector('#top_hold_btn').addEventListener('click', toggle_top_hold)
@@ -92,7 +92,7 @@
      var result = {};
      result['holds'] = holds_pinner.get_holds();
      result['image'] = holds_pinner.export_image();
-     alert(JSON.stringify(result));
+     alert(JSON.stringify(result['holds']));
    }
 </script>
   </body>

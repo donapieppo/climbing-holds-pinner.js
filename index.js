@@ -7,13 +7,14 @@ const  colors = {
 const defaults = {
   width: 1024,
   height: 1024,
-  target: 'CanvasDiv', 
+  target: 'canvasDiv', 
   editable: false, 
   size_ratio: 70, // (this.width + this.height) / this.size_ratio
 }
 
 class HoldLabel {
   constructor (x, y, type, size, editable) {
+    this.c = 'HoldLabel' // necessary h.constructor.name not working after compression...
     this.x = x
     this.y = y
     this.type = type
@@ -58,6 +59,7 @@ class HoldLabel {
 
 class Hold {
   constructor(x, y, type, size, editable) {
+    this.c = 'Hold' // necessary h.constructor.name not working after compression...
     this.x = x
     this.y = y
     this.type = type
@@ -105,11 +107,13 @@ class Hold {
 export default class HoldsPinner {
   constructor(options) {
     let o = Object.assign({}, defaults, options)
+    console.log(o);
     this.target = o.target
     this.width  = o.width
     this.height = o.height
     this.editable = o.editable
     this.size_ratio = o.size_ratio
+    this.hold_size  = options.hold_size || Math.floor((this.width + this.height) / this.size_ratio)
 
     this.actual_hold_type = 'start'
 
@@ -139,10 +143,6 @@ export default class HoldsPinner {
     })
   }
 
-  hold_size() {
-    return ((this.width + this.height) / this.size_ratio)
-  }
-
   add_hold_event(e) {
     console.log(e)
     console.log(`adding hold from event e.x, e.y:${e.evt.layerX}:${e.evt.layerY}`)
@@ -150,7 +150,7 @@ export default class HoldsPinner {
     const x = e.evt.layerX
     const y = e.evt.layerY
 
-    const hold = this.add_hold(x, y, this.actual_hold_type, this.hold_size())
+    const hold = this.add_hold(x, y, this.actual_hold_type, this.hold_size)
 
     console.log(this.pins)
   }
@@ -180,30 +180,32 @@ export default class HoldsPinner {
   }
 
   increase_size() {
-    this.size_ratio = this.size_ratio * 0.75
-    console.log(`size_ratio: ${this.size_ratio}`)
-    // this.pins.forEach( r => { r.shape.scale({
-    //     x: 0.75,
-    //     y: 0.75
-    // })})
-    // this.layer.draw()
+    const p = this.pins[this.pins.length - 1]
+    this.hold_size = Math.floor(this.hold_size * 1.3)
+    p.size = Math.floor(p.size * 1.3)
+    p.shape.scale({
+         x: 1.3,
+         y: 1.3
+    })
+    this.layer.draw()
   }
 
   decrease_size() {
-    this.size_ratio = this.size_ratio * 1.25
-    console.log(`size_ratio: ${this.size_ratio}`)
-    // this.pins.forEach( r => r.shape.scale({
-    //     x: 1.25,
-    //     y: 1.25
-    // }))
-    // this.layer.draw()
+    const p = this.pins[this.pins.length - 1]
+    this.hold_size = Math.floor(this.hold_size / 1.3)
+    p.size = Math.floor(p.size / 1.3)
+    p.shape.scale({
+         x: 1/1.3,
+         y: 1/1.3
+    })
+    this.layer.draw()
   }
 
   get_holds() {
     console.log('in get_holds()')
     console.log(this.pins)
     return this.pins.filter(h => h.x !== 0).map(h => ({
-      c: h.constructor.name, 
+      c: h.c, 
       x: h.x, 
       y: h.y, 
       type: h.type, 
