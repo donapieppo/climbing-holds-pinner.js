@@ -1,6 +1,6 @@
 {
   "name": "climbing-holds-pinner.js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Pinning climbing holds on canvas",
   "main": "index.js",
   "author": "Donapieppo <donapieppo@yahoo.it>",
