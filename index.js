@@ -25,9 +25,20 @@ class HoldLabel {
     this.fillcolor = (this.label_text === 'TOP') ? 'rgba(123, 1, 123, 1)'   : 'rgba(200, 200, 200, 0.40)'
     this.textcolor = (this.label_text === 'TOP') ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)'
 
+    // real position
+    var x1 = this.x
+    var y1 = this.y
+    if (this.label_text === 'TOP') {
+      x1 = x1 + this.size + 10
+      y1 = y1 - this.size
+    } else {
+      x1 = x1 - this.size * 2
+      y1 = y1 - this.size * 2
+    }
+
     this.shape = new Konva.Label({
-      x: this.x + this.size + 10,
-      y: this.y - this.size,
+      x: x1,
+      y: y1,
       opacity: 0.85,
       draggable: editable
     })
@@ -43,10 +54,10 @@ class HoldLabel {
       new Konva.Text({
         text: this.label_text,
         fontFamily: 'Calibri',
-        fontSize: this.size,
+        fontSize: this.size * 0.75,
         padding: this.size / 2,
         fill: this.textcolor, 
-        align: 'right'
+        align: 'center'
       })
     )
 
@@ -186,7 +197,7 @@ export default class HoldsPinner {
 
     // only start has no label
     if (hold.type !== 'start') {
-      var hold_label = new HoldLabel(hold.x, hold.y, hold.label_text(), hold.size * 0.65, this.editable) 
+      var hold_label = new HoldLabel(hold.x, hold.y, hold.label_text(), hold.size,  this.editable) 
       this.pins.push(hold_label)
       this.layer.add(hold_label.shape).draw()
     }
@@ -201,25 +212,25 @@ export default class HoldsPinner {
   }
 
   increase_size() {
-    const p = this.pins[this.pins.length - 1]
     this.hold_size = Math.floor(this.hold_size * 1.3)
-    p.size = Math.floor(p.size * 1.3)
-    p.shape.scale({
-         x: 1.3,
-         y: 1.3
-    })
-    this.layer.draw()
+    // const p = this.pins[this.pins.length - 1]
+    // p.size = Math.floor(p.size * 1.3)
+    // p.shape.scale({
+    //      x: 1.3,
+    //      y: 1.3
+    // })
+    // this.layer.draw()
   }
 
   decrease_size() {
-    const p = this.pins[this.pins.length - 1]
     this.hold_size = Math.floor(this.hold_size / 1.3)
-    p.size = Math.floor(p.size / 1.3)
-    p.shape.scale({
-         x: 1/1.3,
-         y: 1/1.3
-    })
-    this.layer.draw()
+    // const p = this.pins[this.pins.length - 1]
+    // p.size = Math.floor(p.size / 1.3)
+    // p.shape.scale({
+    //      x: 1/1.3,
+    //      y: 1/1.3
+    // })
+    // this.layer.draw()
   }
 
   get_holds() {
