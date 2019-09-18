@@ -167,10 +167,14 @@ export default class HoldsPinner {
     const x = e.evt.layerX
     const y = e.evt.layerY
 
-    this.actual_number = (this.actual_hold_type === 'hold' && this.numerable) ? (this.actual_number + 1) : 0
+    // only simple holds have number
+    var num = 0
+    if (this.actual_hold_type === 'hold' && this.numerable) {
+      this.actual_number = this.actual_number + 1
+      num = this.actual_number
+    }
 
-    this.add_hold(new Hold(x, y, this.actual_hold_type, this.hold_size, this.actual_number, this.editable))
-
+    this.add_hold(new Hold(x, y, this.actual_hold_type, this.hold_size, num, this.editable))
     console.log(this.pins)
   }
 
@@ -180,7 +184,8 @@ export default class HoldsPinner {
     this.pins.push(hold)
     this.layer.add(hold.shape).draw()
 
-    if (hold.type != 'start') {
+    // only start has no label
+    if (hold.type !== 'start') {
       var hold_label = new HoldLabel(hold.x, hold.y, hold.label_text(), hold.size * 0.65, this.editable) 
       this.pins.push(hold_label)
       this.layer.add(hold_label.shape).draw()
@@ -218,8 +223,8 @@ export default class HoldsPinner {
   }
 
   get_holds() {
-    console.log('in get_holds()')
-    console.log(this.pins)
+    // console.log('in get_holds()')
+    // console.log(this.pins)
     return this.pins.filter(h => h.x !== 0).map(h => ({
       c: h.c, 
       x: h.x, 
@@ -234,8 +239,7 @@ export default class HoldsPinner {
   // https://konvajs.org/docs/data_and_serialization/Stage_Data_URL.html
   // for saving as image
   export_image() {
-    var dataURL = this.stage.toDataURL()
-    return dataURL
+    return(this.stage.toDataURL())
   }
 
   // thanks to https://konvajs.org/docs/sandbox/Responsive_Canvas.html
