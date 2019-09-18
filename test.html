@@ -7,7 +7,7 @@
     <title>I blocchi e i giri di Eden</title>
     <meta content="Pagina con i blocchi e i giri" name="description" />
     
-    <script src="https://unpkg.com/konva@3.1.0/konva.js"></script>
+    <script src="https://unpkg.com/konva@4.0.0/konva.js"></script>
     <script type="module" src="./index.js"></script>
 
     <style>
@@ -37,12 +37,14 @@
 
 <script type="module">
    import HoldsPinner from "./index.js";
-   const holds_pinner = new HoldsPinner({editable: true, size_ratio: 50});
+   const holds_pinner = new HoldsPinner({editable: true, size_ratio: 50, numerable: true});
    const startingHolds = []
    console.log('startingHolds')
    console.log(startingHolds)
 
-   holds_pinner.setup([{"c":"Hold","x":200,"y":100,"type":"start","size":40}]);
+   // holds_pinner.setup([{"c":"HoldLabel","x":200,"y":100,"type":"start","size":40}]);
+   holds_pinner.setup([{"c":"Hold","x":200,"y":100,"type":"top","size":40},
+                       {"c":"HoldLabel","x":200,"y":200,"type":"top","size":40}]);
 
    document.querySelector('#start_hold_btn').addEventListener('click', toggle_start_hold)
    document.querySelector('#top_hold_btn').addEventListener('click', toggle_top_hold)
@@ -76,17 +78,17 @@
      }
    }
 
-    function increase_hold_size() {
-      holds_pinner.increase_size();
-    }
+   function increase_hold_size() {
+     holds_pinner.increase_size();
+   }
 
-    function decrease_hold_size() {
-      holds_pinner.decrease_size();
-    }
+   function decrease_hold_size() {
+     holds_pinner.decrease_size();
+   }
 
-    function undo() {
-      holds_pinner.undo();
-    }
+   function undo() {
+     holds_pinner.undo();
+   }
 
    function save_holds() {
      var result = {};

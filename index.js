@@ -1,7 +1,7 @@
 const  colors = { 
   start: 'rgba(219, 10, 91, 0.8)',
-  top: 'rgba(123, 1, 123, 0.8)',
-  hold: 'rgba(245, 229, 27, 0.8)',
+  top:   'rgba(123, 1, 123, 0.8)',
+  hold:  'rgba(245, 229, 27, 0.8)',
   blurr_background: 'rgba(200, 200, 200, 0.30)' 
 } 
 const defaults = {
@@ -9,38 +9,43 @@ const defaults = {
   height: 1024,
   target: 'canvasDiv', 
   editable: false, 
+  numerable: false,
   size_ratio: 70, // (this.width + this.height) / this.size_ratio
 }
 
 class HoldLabel {
-  constructor (x, y, type, size, editable) {
+  constructor (x, y, label_text, size, editable) {
+    console.log(`new HoldLabel: x=${x} y=${y} label_text=${label_text} size=${size}`)
+
     this.c = 'HoldLabel' // necessary h.constructor.name not working after compression...
     this.x = x
     this.y = y
-    this.type = type
+    this.label_text = label_text
     this.size = size
+    this.fillcolor = (this.label_text === 'TOP') ? 'rgba(123, 1, 123, 1)'   : 'rgba(200, 200, 200, 0.40)'
+    this.textcolor = (this.label_text === 'TOP') ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)'
 
     this.shape = new Konva.Label({
-      x: this.x - 150,
-      y: this.y - 15,
+      x: this.x + this.size + 10,
+      y: this.y - this.size,
       opacity: 0.85,
       draggable: editable
     })
 
     this.shape.add(
       new Konva.Tag({
-        fill: 'rgba(123, 1, 123, 1)',
-        cornerRadius: 5
+        fill: this.fillcolor,
+        cornerRadius: this.size
       })
     )
 
     this.shape.add(
       new Konva.Text({
-        text: this.type,
+        text: this.label_text,
         fontFamily: 'Calibri',
-        fontSize: 38,
-        padding: 15,
-        fill: 'white',
+        fontSize: this.size,
+        padding: this.size / 2,
+        fill: this.textcolor, 
         align: 'right'
       })
     )
@@ -58,12 +63,13 @@ class HoldLabel {
 }
 
 class Hold {
-  constructor(x, y, type, size, editable) {
+  constructor(x, y, type, size, number, editable) {
     this.c = 'Hold' // necessary h.constructor.name not working after compression...
     this.x = x
     this.y = y
     this.type = type
     this.size = size
+    this.number = number || 0
 
     const common = {
       x: this.x,
@@ -100,7 +106,17 @@ class Hold {
   }
 
   color() {
-    return colors[this.type]
+    return(colors[this.type])
+  }
+
+  label_text() {
+    if (this.type === "top") {
+      return("TOP")
+    } else if (this.type === "start") {
+      return(0)
+    } else {
+      return(this.number)
+    }
   }
 }
 
@@ -112,10 +128,12 @@ export default class HoldsPinner {
     this.width  = o.width
     this.height = o.height
     this.editable = o.editable
+    this.numerable  = o.numerable
     this.size_ratio = o.size_ratio
     this.hold_size  = options.hold_size || Math.floor((this.width + this.height) / this.size_ratio)
 
     this.actual_hold_type = 'start'
+    this.actual_number = 0
 
     this.pins = []
 
@@ -136,39 +154,37 @@ export default class HoldsPinner {
   }
 
   setup(holdsData) {
-    holdsData.forEach(hold => {
-      if (hold.c === 'Hold') {
-        this.add_hold(hold.x, hold.y, hold.type, hold.size)
+    holdsData.forEach(hold_hash => {
+      if (hold_hash.c === 'Hold') {
+        this.add_hold(new Hold(hold_hash.x, hold_hash.y, hold_hash.type, hold_hash.size, hold_hash.number || 0, this.editable))
       }
     })
   }
 
   add_hold_event(e) {
-    console.log(e)
-    console.log(`adding hold from event e.x, e.y:${e.evt.layerX}:${e.evt.layerY}`)
+    console.log(`Adding hold from event (e.x, e.y):(${e.evt.layerX}, ${e.evt.layerY})`)
 
     const x = e.evt.layerX
     const y = e.evt.layerY
 
-    const hold = this.add_hold(x, y, this.actual_hold_type, this.hold_size)
+    this.actual_number = (this.actual_hold_type === 'hold' && this.numerable) ? (this.actual_number + 1) : 0
+
+    this.add_hold(new Hold(x, y, this.actual_hold_type, this.hold_size, this.actual_number, this.editable))
 
     console.log(this.pins)
   }
 
-  add_hold(x, y, hold_type, size) {
-    const hold = new Hold(x, y, hold_type, size, this.editable)
-    console.log(`new hold: hold.x=${hold.x} hold.y=${hold.y} hold.type=${hold.type} size=${hold.size}`)
-    this.pins.push(hold)
+  add_hold(hold) {
+    console.log(`new hold: hold.x=${hold.x} hold.y=${hold.y} hold.type=${hold.type} size=${hold.size} number=${hold.number}`)
 
+    this.pins.push(hold)
     this.layer.add(hold.shape).draw()
 
-    if (hold.type === 'top') {
-      const hold_label = new HoldLabel(x, y, hold_type, size, this.editable)
+    if (hold.type != 'start') {
+      var hold_label = new HoldLabel(hold.x, hold.y, hold.label_text(), hold.size * 0.65, this.editable) 
       this.pins.push(hold_label)
-
       this.layer.add(hold_label.shape).draw()
     }
-    return hold
   }
 
   get_hold_type() {
@@ -209,7 +225,8 @@ export default class HoldsPinner {
       x: h.x, 
       y: h.y, 
       type: h.type, 
-      size: h.size
+      size: h.size, 
+      number: h.number
     }))
   }
   
@@ -242,8 +259,8 @@ export default class HoldsPinner {
     console.log("UNDO")
     var last = this.pins.pop()
     last.shape.hide()
-    // hide also the label
-    if (last.type === 'top') {
+    // when deleting the label delete also the hold
+    if (last.c === 'HoldLabel') {
       last = this.pins.pop()
       last.shape.hide()
     }
