@@ -1,29 +1,33 @@
 const  colors = { 
-  start: 'rgba(219, 10, 91, 0.8)',
-  top:   'rgba(123, 1, 123, 0.8)',
-  hold:  'rgba(245, 229, 27, 0.8)',
+  start: 'rgba(219, 10, 91, 0.8)',  // border color of the starting hold
+  top:   'rgba(123, 1, 123, 0.8)',  // border color of the top hold
+  hold:  'rgba(245, 229, 27, 0.8)', // border color od the simple hold
+  white: 'rgba(255, 255, 255, 1)',
+  black: 'rgba(0, 0, 0, 1)', 
+  transparent: 'rgba(255, 255, 255, 1)', 
   blurr_background: 'rgba(200, 200, 200, 0.30)' 
 } 
+// defaults for HoldsPinner
 const defaults = {
   width: 1024,
   height: 1024,
   target: 'canvasDiv', 
-  editable: false, 
-  numerable: false,
-  size_ratio: 70, // (this.width + this.height) / this.size_ratio
+  editable: false,  // Konva draggable
+  numerable: false, // simple holds have a number
+  size_ratio: 70,   // (this.width + this.height) / this.size_ratio
 }
 
 class HoldLabel {
   constructor (x, y, label_text, size, editable) {
-    console.log(`new HoldLabel: x=${x} y=${y} label_text=${label_text} size=${size}`)
+    console.log(`new HoldLabel: x=${x} y=${y} label_text=${label_text} size=${size} editable==${editable}`)
 
     this.c = 'HoldLabel' // necessary h.constructor.name not working after compression...
     this.x = x
     this.y = y
     this.label_text = label_text
     this.size = size
-    this.fillcolor = (this.label_text === 'TOP') ? 'rgba(123, 1, 123, 1)'   : 'rgba(200, 200, 200, 0.40)'
-    this.textcolor = (this.label_text === 'TOP') ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)'
+    this.fillcolor = (this.label_text === 'TOP') ? colors['top']   : colors['transparent']
+    this.textcolor = (this.label_text === 'TOP') ? colors['white'] : colors['black']
 
     // real position
     var x1 = this.x
@@ -32,15 +36,16 @@ class HoldLabel {
       x1 = x1 + this.size + 10
       y1 = y1 - this.size
     } else {
-      x1 = x1 - this.size * 2
-      y1 = y1 - this.size * 2
+      x1 = x1 - this.size   
+      y1 = y1 - this.size 
     }
 
     this.shape = new Konva.Label({
       x: x1,
       y: y1,
-      opacity: 0.85,
-      draggable: editable
+      opacity: 1,
+      draggable: editable,
+      width: this.size * 2
     })
 
     this.shape.add(
@@ -55,7 +60,7 @@ class HoldLabel {
         text: this.label_text,
         fontFamily: 'Calibri',
         fontSize: this.size * 0.75,
-        padding: this.size / 2,
+        padding: 2, 
         fill: this.textcolor, 
         align: 'center'
       })
@@ -190,7 +195,7 @@ export default class HoldsPinner {
   }
 
   add_hold(hold) {
-    console.log(`new hold: hold.x=${hold.x} hold.y=${hold.y} hold.type=${hold.type} size=${hold.size} number=${hold.number}`)
+    console.log(`new hold: x=${hold.x} y=${hold.y} type=${hold.type} size=${hold.size} number=${hold.number}`)
 
     this.pins.push(hold)
     this.layer.add(hold.shape).draw()
