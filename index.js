@@ -201,8 +201,8 @@ export default class HoldsPinner {
     this.layer.add(hold.shape).draw()
 
     // only start has no label
-    if (hold.type !== 'start') {
-      var hold_label = new HoldLabel(hold.x, hold.y, hold.label_text(), hold.size,  this.editable) 
+    if ((hold.type == 'top') || (hold.type == 'hold' && this.numerable)) {
+      var hold_label = new HoldLabel(hold.x, hold.y, hold.label_text(), hold.size, this.editable) 
       this.pins.push(hold_label)
       this.layer.add(hold_label.shape).draw()
     }
