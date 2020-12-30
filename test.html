@@ -6,48 +6,36 @@
 
     <title>I blocchi e i giri di Eden</title>
     <meta content="Pagina con i blocchi e i giri" name="description" />
-    
+    <link rel="stylesheet" href="./style.css"/>
+
     <script src="https://unpkg.com/konva@4.0.0/konva.js"></script>
     <script type="module" src="./index.js"></script>
-
-    <style>
-.pinning-action-button {
-  width: 70px;
-  padding: 5px 3px;
-  margin: 3px;
-  display: block;
-}
-.pinning-selected-button {
-  background-color: green;
-}
-    </style>
   </head>
 
   <body>
-    <h1>CIAO</h1>
+    <h1>Test</h1>
     <div style="position: fixed !important; top: 10px; left: 0; z-index: 1000;">
       <button id="start_hold_btn"         class="pinning-selected-button pinning-action-button">Start</button> 
+      <button id="hold_btn"               class="pinning-action-button">Presa</button>
       <button id="top_hold_btn"           class="pinning-action-button">Top</button> 
-      <button id="increase_hold_size_btn" class="pinning-action-button mt-2"><i class="fas fa-plus"></i>+</button> 
-      <button id="decrease_hold_size_btn" class="pinning-action-button"><i class="fas fa-minus"></i>-</button> 
-      <button id="undo_btn"               class="pinning-action-button"><i class="fas fa-undo"></i>undo</button>
-      <button id="save"                   class="pinning-action-button mt-2">Salva</button>
+      <button id="increase_hold_size_btn" class="pinning-action-button">+</button> 
+      <button id="decrease_hold_size_btn" class="pinning-action-button">-</button> 
+      <button id="undo_btn"               class="pinning-action-button">Undo</button>
+      <button id="save"                   class="pinning-action-button">Salva</button>
     </div>
-    <div id="canvasDiv" style="margin: 60px auto; width: 1024px; height: 1024px; background-image: url('test.png')"></div>
+    <div id="canvasDiv"></div>
 
 <script type="module">
    import HoldsPinner from "./index.js";
    const holds_pinner = new HoldsPinner({editable: true, size_ratio: 50, numerable: true});
    const startingHolds = []
-   console.log('startingHolds')
-   console.log(startingHolds)
 
-   // holds_pinner.setup([{"c":"HoldLabel","x":200,"y":100,"type":"start","size":40}]);
    holds_pinner.setup([{"c":"Hold","x":200,"y":100,"type":"top","size":40},
                        {"c":"HoldLabel","x":200,"y":200,"type":"top","size":40}]);
 
-   document.querySelector('#start_hold_btn').addEventListener('click', toggle_start_hold)
-   document.querySelector('#top_hold_btn').addEventListener('click', toggle_top_hold)
+   document.querySelector('#start_hold_btn').addEventListener('click', start_hold_selected)
+   document.querySelector('#hold_btn').addEventListener('click', simple_hold_selected)
+   document.querySelector('#top_hold_btn').addEventListener('click', top_hold_selected)
    document.querySelector('#increase_hold_size_btn').addEventListener('click', increase_hold_size)
    document.querySelector('#decrease_hold_size_btn').addEventListener('click', decrease_hold_size)
    document.querySelector('#undo_btn').addEventListener('click', undo)
@@ -55,27 +43,26 @@
 
    function clear_selected() {
      document.querySelector('#start_hold_btn').classList.remove("pinning-selected-button");
+     document.querySelector('#hold_btn').classList.remove("pinning-selected-button");
      document.querySelector('#top_hold_btn').classList.remove("pinning-selected-button");
    }
 
-   function toggle_start_hold() {
+   function start_hold_selected() {
      clear_selected()
-     if (holds_pinner.get_hold_type() === 'start') {
-       holds_pinner.change_hold_type('hold')
-     } else {
-       document.querySelector('#start_hold_btn').classList.add("pinning-selected-button");
-       holds_pinner.change_hold_type('start')
-     }
+     document.querySelector('#start_hold_btn').classList.add("pinning-selected-button");
+     holds_pinner.change_hold_type('start')
    }
 
-   function toggle_top_hold() {
+   function simple_hold_selected() {
      clear_selected()
-     if (holds_pinner.get_hold_type() === 'top') {
-       holds_pinner.change_hold_type('hold')
-     } else {
-       document.querySelector('#top_hold_btn').classList.add("pinning-selected-button");
-       holds_pinner.change_hold_type('top')
-     }
+     document.querySelector('#hold_btn').classList.add("pinning-selected-button");
+     holds_pinner.change_hold_type('hold')
+   }
+
+   function top_hold_selected() {
+     clear_selected()
+     document.querySelector('#top_hold_btn').classList.add("pinning-selected-button");
+     holds_pinner.change_hold_type('top')
    }
 
    function increase_hold_size() {
