@@ -281,7 +281,12 @@ export default class HoldsPinner {
     last.shape.hide()
     // when deleting the label delete also the hold
     if (last.c === 'HoldLabel') {
+      console.log('hided label, now hide hold')
       last = this.pins.pop()
+      if (last.c === 'Hold' && this.numerable) {
+        this.actual_number = this.actual_number - 1
+        console.log('decresed actual_number to ' + this.actual_number)
+      }
       last.shape.hide()
     }
     this.layer.draw()
