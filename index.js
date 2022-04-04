@@ -173,6 +173,9 @@ export default class HoldsPinner {
     holdsData.forEach(hold_hash => {
       if (hold_hash.c === 'Hold') {
         this.add_hold(new Hold(hold_hash.x, hold_hash.y, hold_hash.type, hold_hash.size, hold_hash.number || 0, this.editable))
+        if (this.numerable && hold_hash.number > this.actual_number) {
+          this.actual_number = hold_hash.number;
+        }
       }
     })
   }
